@@ -2,7 +2,95 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div id="reimbursement" class="container mt-5">
+  <div class="card">
+    <div class="card-header text-center">
+      <h2>Submit Receipt</h2>
+    </div>
+    <div class="card-body">
+      <form id="receiptForm" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="date" class="form-label">Date:</label>
+          <input id="date" type="date" name="date" v-model="date" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="amount" class="form-label">Amount:</label>
+          <input id="amount" type="number" name="amount" v-model="amount" step="0.01" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Description:</label>
+          <input id="description" type="text" name="description" v-model="description" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="receiptFile" class="form-label">Receipt File:</label>
+          <input id="receiptFile" type="file" name="receiptFile" class="form-control" required>
+        </div>
+        <button type="button" class="btn btn-primary" v-on:click="submitForm">Submit Receipt</button>
+      </form>
+    </div>
+  </div>
 </div>
+
+@section Scripts {
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    const { createApp, ref } = Vue;
+    
+    createApp({
+      setup() {
+        const date = ref('');
+        const amount = ref('');
+        const description = ref('');
+        
+        const submitForm = async () => {
+          try {
+            const formData = new FormData();
+            formData.append('date', date.value);
+            formData.append('amount', amount.value);
+            formData.append('description', description.value);
+            
+            const fileInput = document.getElementById('receiptFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+              alert('Please select an image of your receipt');
+              return;
+            }
+            
+            formData.append('receiptFile', file);
+            
+            const response = await fetch('/api/Receipt', {
+              method: 'POST',
+              body: formData
+            });
+            
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.log(errorText);
+            }
+            
+            const result = await response.json();
+            alert('Receipt submitted successfully!');
+            
+            // Reset form data back to empty strings
+            date.value = '';
+            amount.value = '';
+            description.value = '';
+            document.getElementById('receiptForm').reset();
+            
+          } catch (error) {
+            console.error('Error:', error);
+            alert(`Error submitting receipt: ${error.message}`);
+          }
+        };
+        
+        return {
+          date,
+          amount,
+          description,
+          submitForm
+        };
+      }
+    }).mount("#reimbursement");
+  </script>
+}

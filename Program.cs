@@ -1,9 +1,21 @@
+using employee_reimbursement.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=receipts.db"));
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+// create db if it doesn't exist prior
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
