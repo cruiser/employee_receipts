@@ -10,6 +10,8 @@
 
 5. Then run "dotnet run"
 
-6. You should now see the message "listening on: {URI}". copy and paste that into your browser of choice.
+6. if it throws a Json Error, make sure you open up the receipts.db file that will show up in your solution explorer. Double click it and hit okay. I had this issue when on windows. I created it on macbook with no issues.
 
-7. Use the app and enjoy!
+7. You should now see the message "listening on: {URI}". copy and paste that into your browser of choice.
+
+8. Use the app and enjoy!
